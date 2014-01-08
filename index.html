@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width">
+
+    <title>Gamepad API buttons test page</title>
+
+    <link rel="stylesheet" href="">
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <style>
+      #ball {
+        width: 40px;
+        height: 40px;
+        border-radius: 20px;
+        background-color: red;
+
+        background-image: -webkit-radial-gradient(40% 40%, circle, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.4));;
+        background-image: -moz-radial-gradient(40% 40%, circle, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.4));;
+        background-image: -ms-radial-gradient(40% 40%, circle, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.4));;
+        background-image: radial-gradient(circle at 40% 40%, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.4));
+
+        position: relative;
+      }
+    </style>
+  </head>
+
+  <body>
+    <p id="gamepad-info">Waiting for Gamepad.</p>
+    <div id="ball"></div>
+
+  </body>
+
+<script>
+
+var gamepadInfo = document.getElementById("gamepad-info");
+var ball = document.getElementById("ball");
+var start;
+var a = 0;
+var b = 0;
+
+var rAF = window.mozRequestAnimationFrame ||
+  window.webkitRequestAnimationFrame ||
+  window.requestAnimationFrame;
+
+var rAFStop = window.mozCancelRequestAnimationFrame ||
+  window.webkitCancelRequestAnimationFrame ||
+  window.cancelRequestAnimationFrame;
+
+window.addEventListener("gamepadconnected", function(e) {
+  var gp = navigator.getGamepads()[0];
+  gamepadInfo.innerHTML = "Gamepad connected at index " + gp.index + ": " + gp.id + ". It has " + gp.buttons.length + " buttons and " + gp.axes.length + " axes.";
+
+  gameLoop();
+});
+
+window.addEventListener("gamepaddisconnected", function(e) {
+  gamepadInfo.innerHTML = "Waiting for gamepad.";
+
+  rAFStop(start);
+});
+
+if(navigator.webkitGetGamepads) {
+  // Webkit browser that uses prefixes
+  var interval = setInterval(webkitGP, 500);
+}
+
+function webkitGP() {
+  var gp = navigator.webkitGetGamepads()[0];
+  if(gp) {
+    gamepadInfo.innerHTML = "Gamepad connected at index " + gp.index + ": " + gp.id + ". It has " + gp.buttons.length + " buttons and " + gp.axes.length + " axes.";
+    gameLoop();
+    clearInterval(interval);
+  }
+}
+
+function gameLoop() {
+  if(navigator.webkitGetGamepads) {
+    var gp = navigator.webkitGetGamepads()[0];
+
+    if(gp.buttons[0] == 1) {
+      b--;
+    } else if(gp.buttons[1] == 1) {
+      a++;
+    } else if(gp.buttons[2] == 1) {
+      b++;
+    } else if(gp.buttons[3] == 1) {
+      a--;
+    }
+  } else {
+    var gp = navigator.getGamepads()[0];
+
+    if(gp.buttons[0].value == 1) {
+      b--;
+    } else if(gp.buttons[1].value == 1) {
+      a++;
+    } else if(gp.buttons[2].value == 1) {
+      b++;
+    } else if(gp.buttons[3].value == 1) {
+      a--;
+    }
+  }
+
+  ball.style.left = a*2 + "px";
+  ball.style.top = b*2 + "px";
+
+  var start = rAF(gameLoop);
+};
+
+
+</script>
+</html>
