@@ -63,45 +63,45 @@ window.addEventListener("gamepaddisconnected", function() {
   rAFStop(start);
 });
 
-if(navigator.webkitGetGamepads) {
-  // Webkit browser that uses prefixes
-  var interval = setInterval(webkitGP, 500);
+if(!('GamepadEvent' in window)) {
+  // No gamepad events available, poll instead.
+  var interval = setInterval(pollGamepads, 500);
 }
 
-function webkitGP() {
-  var gp = navigator.webkitGetGamepads()[0];
-  if(gp) {
-    gamepadInfo.innerHTML = "Gamepad connected at index " + gp.index + ": " + gp.id + ". It has " + gp.buttons.length + " buttons and " + gp.axes.length + " axes.";
-    gameLoop();
-    clearInterval(interval);
+function pollGamepads() {
+  var gamepads = navigator.getGamepads ? navigator.getGamepads() : (navigator.webkitGetGamepads ? navigator.webkitGetGamepads : []);
+  for (var i = 0; i < gamepads.length; i++) {
+    var gp = gamepads[i];
+    if(gp) {
+      gamepadInfo.innerHTML = "Gamepad connected at index " + gp.index + ": " + gp.id + ". It has " + gp.buttons.length + " buttons and " + gp.axes.length + " axes.";
+      gameLoop();
+      clearInterval(interval);
+    }
   }
 }
 
+function buttonPressed(b) {
+  if (typeof(b) == "object") {
+    return b.pressed;
+  }
+  return b == 1.0;
+}
+
 function gameLoop() {
-  if(navigator.webkitGetGamepads) {
-    var gp = navigator.webkitGetGamepads()[0];
+  var gamepads = navigator.getGamepads ? navigator.getGamepads() : (navigator.webkitGetGamepads ? navigator.webkitGetGamepads : []);
+  if (!gamepads)
+    return;
 
-    if(gp.buttons[0] == 1) {
-      b--;
-    } else if(gp.buttons[1] == 1) {
-      a++;
-    } else if(gp.buttons[2] == 1) {
-      b++;
-    } else if(gp.buttons[3] == 1) {
-      a--;
-    }
-  } else {
-    var gp = navigator.getGamepads()[0];
-
-    if(gp.buttons[0].value > 0 || gp.buttons[0].pressed == true) {
-      b--;
-    } else if(gp.buttons[1].value > 0 || gp.buttons[1].pressed == true) {
-      a++;
-    } else if(gp.buttons[2].value > 0 || gp.buttons[2].pressed == true) {
-      b++;
-    } else if(gp.buttons[3].value > 0 || gp.buttons[3].pressed == true) {
-      a--;
-    }
+  var gp = gamepads[0];
+  if (buttonPressed(gp.buttons[0])) {
+    b--;
+  } else if (buttonPressed(gp.buttons[2])) {
+    b++;
+  }
+  if(buttonPressed(gp.buttons[1])) {
+    a++;
+  } else if(buttonPressed(gp.buttons[3])) {
+    a--;
   }
 
   ball.style.left = a*2 + "px";
