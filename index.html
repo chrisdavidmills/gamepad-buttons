@@ -93,14 +93,14 @@ function gameLoop() {
     return;
 
   var gp = gamepads[0];
-  if (buttonPressed(gp.buttons[0])) {
+  if (buttonPressed(gp.buttons[0]) || gp.axes[1] === -1) {
     b--;
-  } else if (buttonPressed(gp.buttons[2])) {
+  } else if (buttonPressed(gp.buttons[2]) || gp.axes[1] === 1) {
     b++;
   }
-  if(buttonPressed(gp.buttons[1])) {
+  if(buttonPressed(gp.buttons[1])  || gp.axes[0] === 1) {
     a++;
-  } else if(buttonPressed(gp.buttons[3])) {
+  } else if(buttonPressed(gp.buttons[3]) || gp.axes[0] === -1) {
     a--;
   }
 
